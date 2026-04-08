@@ -145,7 +145,7 @@ These assumptions should always be discussed explicitly in real work.
 
 ```bash
 pip install -r requirements.txt
-jupyter notebook Price_Increase_ITS_Counterfactual.ipynb
+jupyter notebook ITS_PriceIncrease_Counterfactual.ipynb
 ```
 
 ---
