@@ -135,7 +135,7 @@ These assumptions should always be discussed explicitly in real work.
 
 ## Repository contents
 
-- `Price_Increase_ITS_Counterfactual.ipynb` — main notebook walkthrough
+- `ITS_PriceIncrease_Counterfactual.ipynb` — main notebook walkthrough
 - `requirements.txt` — Python dependencies
 - `README.md` — repository overview
 
