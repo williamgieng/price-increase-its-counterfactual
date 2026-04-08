@@ -1,70 +1,163 @@
-# Interrupted Time Series Counterfactual: Price Change Impact on Churn
+# Interrupted Time Series Counterfactual: Global Price Change Impact on Churn
 
-This repository demonstrates how to estimate the impact of a **global price change** on **customer churn** using **Interrupted Time Series (ITS)**.
+This repository demonstrates how to estimate the impact of a **global price change** on **customer churn** using a **single-series Interrupted Time Series (ITS)** design.
 
-Because the price increase was applied to all customers simultaneously, no untreated control group exists. The analysis therefore constructs a **model-based counterfactual** by projecting pre-intervention behavior into the post period under a no-intervention assumption.
+When a price change is applied to **everyone at once**, there is no untreated control group and a classic A/B test is not possible. The analysis therefore constructs a **model-based counterfactual** by projecting pre-intervention dynamics into the post period under a no-intervention assumption.
 
 All data in this repository is **synthetic** and generated solely for demonstration purposes.
 
 ---
 
-## Problem Statement
+## Why this example exists
 
-When a price change is rolled out globally, traditional A/B testing is not possible. However, stakeholders still need an estimate of:
+Not every important business decision can be tested cleanly.
 
-- whether churn increased due to the price change
-- how large the impact was
-- whether the observed change exceeds normal time-series variation
+In practice, some of the most consequential interventions happen under real-world constraints:
 
-This notebook shows how **Interrupted Time Series** can be used to answer those questions under realistic constraints.
+- price changes applied globally
+- policy rollouts
+- product changes that affect all users
+- infrastructure or experience changes with no holdout group
 
----
+In these settings, teams still need to answer questions like:
 
-## Method Overview
+- Did churn actually increase because of the intervention?
+- How large was the impact?
+- Was the observed change larger than normal trend, seasonality, and noise?
 
-The analysis follows a standard segmented regression ITS design:
-
-- Baseline trend estimation using pre-intervention data
-- Immediate **level change** at the intervention point
-- **Slope change** after the intervention
-- Explicit construction of a **counterfactual (no price change)** trajectory
-
-Key methodological components include:
-- Segmented regression (level + slope change)
-- Model-based counterfactual prediction
-- Robust inference using **Heteroskedasticity- and Autocorrelation-Consistent (HAC / Newey–West)** standard errors
-- Residual diagnostics via **ACF/PACF**
-- Validation using placebo intervention tests
-- Sensitivity checks on autocorrelation window and pre-period length
+This example shows one way to approach that problem more rigorously than a naive before-and-after comparison.
 
 ---
 
-## What the Notebook Contains
+## What this repository demonstrates
 
-The notebook walks through the full workflow step by step:
+The notebook walks through a complete ITS workflow for a **global treatment / no-control-group** setting:
 
-1. Synthetic time-series generation with trend, seasonality, and noise  
-2. Construction of ITS features (`time`, `post`, `time_since_intervention`)  
-3. Segmented regression model fit  
-4. Counterfactual prediction (no-intervention scenario)  
-5. Pointwise and cumulative impact estimation  
-6. Residual diagnostics (ACF/PACF)  
-7. Placebo (falsification) tests  
-8. Sensitivity analyses  
+1. Generate a realistic synthetic churn time series
+2. Define the intervention date and ITS features
+3. Fit a segmented regression model
+4. Construct the no-intervention counterfactual
+5. Estimate pointwise and cumulative impact
+6. Diagnose residual autocorrelation with ACF / PACF
+7. Run placebo (falsification) checks
+8. Test sensitivity to modeling choices
 
-Each chart includes an explanation directly below it to clarify what is being shown and why it matters.
-
----
-
-## Interpretation
-
-- The **counterfactual** represents what churn would have been had the price change not occurred, assuming pre-intervention dynamics continued.
-- The difference between observed churn and the counterfactual in the post period represents the estimated **incremental impact** of the price change.
-- HAC standard errors ensure statistical inference remains valid in the presence of autocorrelation and changing variance.
+The output is meant to be both:
+- **methodologically credible** enough to demonstrate the core approach
+- **business-readable** enough to explain the logic to nontechnical stakeholders
 
 ---
 
-## How to Run
+## Method overview
+
+The notebook uses a standard segmented regression ITS design with:
+
+- baseline time trend
+- intervention level change
+- post-intervention slope change
+- month seasonality
+- a contemporaneous business covariate
+- HAC / Newey–West standard errors for more robust inference under autocorrelation
+
+The core idea is to estimate:
+
+- what happened after the intervention
+- what would likely have happened **without** the intervention
+- the gap between those two paths
+
+That gap is the estimated **incremental effect**.
+
+---
+
+## Why this is better than a simple before-and-after
+
+A naive before-and-after comparison treats every post-period change as if it were caused by the intervention.
+
+That is often misleading.
+
+ITS is more credible because it explicitly accounts for:
+
+- pre-existing trend
+- seasonality
+- noise
+- post-period divergence from the modeled no-intervention path
+
+It is still not a replacement for a clean randomized experiment. But when a full-population intervention makes experimentation impossible, it is often a much stronger alternative than simple descriptive comparison.
+
+---
+
+## What the notebook includes
+
+The notebook includes:
+
+- a synthetic weekly churn time series
+- a modeled counterfactual (no price change)
+- a visual chart showing the **counterfactual**, **intervention date**, and **highlighted causal effect**
+- residual diagnostics
+- placebo intervention tests
+- sensitivity checks for HAC lag choice and pre-period length
+- a short business interpretation section at the end
+
+Each major chart is followed by a plain-English explanation of what it shows and why it matters.
+
+---
+
+## When this approach is appropriate
+
+A single-series ITS design is most useful when:
+
+- the intervention affects the full population
+- no clean control group exists
+- the intervention timing is known
+- enough pre-period history is available
+
+It becomes less credible when:
+
+- multiple major interventions overlap heavily
+- structural breaks make the pre-period unreliable
+- the post-period is too short
+- important confounders are completely unobserved and unstable
+
+---
+
+## Key assumptions
+
+This example relies on several important assumptions:
+
+1. Pre-intervention dynamics are informative about the no-intervention path.
+2. No other major concurrent intervention fully explains the post-period shift.
+3. Trend and seasonality are modeled reasonably well.
+4. Residual autocorrelation is handled appropriately in inference.
+
+These assumptions should always be discussed explicitly in real work.
+
+---
+
+## Repository contents
+
+- `Price_Increase_ITS_Counterfactual.ipynb` — main notebook walkthrough
+- `requirements.txt` — Python dependencies
+- `README.md` — repository overview
+
+---
+
+## How to run
 
 ```bash
 pip install -r requirements.txt
+jupyter notebook Price_Increase_ITS_Counterfactual.ipynb
+```
+
+---
+
+## Takeaway
+
+The main lesson is simple:
+
+When a global intervention makes A/B testing impossible, the right question is not just **“what changed?”**
+
+It is:
+
+**“What would likely have happened if the intervention had not occurred?”**
+
+That is the counterfactual question, and it is the heart of causal measurement in imperfect real-world settings.
