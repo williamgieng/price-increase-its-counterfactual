@@ -12,8 +12,6 @@ And yet, teams still need to answer a critical question:
 
 The most common mistake is to rely on simple before-and-after comparisons. But those often confuse natural trends, seasonality, or external factors with real impact.
 
-This notebook shows how to build a credible counterfactual using interrupted time series (ITS), allowing you to estimate what would have happened without the intervention.
-
 ---
 
 ## The problem
@@ -42,26 +40,27 @@ A simple comparison might suggest:
 
 But this ignores what would have happened anyway.
 
-Without a counterfactual, it is easy to mistake:
-- ongoing trends  
-- random fluctuations  
-- or external shocks  
+Without a counterfactual, you are not measuring impact.
 
-for causal impact.
+You are describing change and assuming causation.
 
-This leads to confident conclusions based on unreliable measurement.
+Both approaches produce confident numbers.
+
+Neither produces reliable ones.
 
 ---
 
-## The approach
+## The better approach
 
-Interrupted Time Series (ITS) provides a more credible alternative.
+The better approach is to build a credible counterfactual.
 
-Instead of comparing before vs after directly, we:
+Not what happened, but what would have happened if the intervention had not occurred.
+
+Interrupted Time Series (ITS) provides a practical way to do this:
 
 1. Model the pre-intervention trend  
-2. Project that trend forward to estimate a counterfactual baseline  
-3. Compare the observed post-intervention data to that baseline  
+2. Project that trend forward to estimate the counterfactual baseline  
+3. Compare observed outcomes to that baseline  
 
 The difference between:
 - what actually happened  
@@ -86,13 +85,16 @@ The goal is not to build the most complex model, but to show:
 
 ---
 
-## Key takeaway
+## When this matters
 
-Without a counterfactual, it is easy to attribute changes to an intervention that had no real effect.
+This approach is useful when:
 
-Better measurement does not just improve analysis.
+- no clean control group exists  
+- the intervention affects all users at once  
+- historical data is available  
+- decisions still need to be made  
 
-**It prevents the wrong decisions.**
+This is where most real-world measurement problems occur.
 
 ---
 
@@ -104,25 +106,7 @@ Interrupted time series relies on an important assumption:
 
 If that assumption is violated (e.g., due to structural breaks or external shocks), the estimates may be biased.
 
-Like all causal methods, ITS requires careful judgment in both modeling and interpretation.
-
----
-
-## When to use this approach
-
-ITS is especially useful when:
-
-- no clean control group exists  
-- the intervention affects all users at once  
-- historical data is available  
-- trends can be reasonably modeled  
-
-Common examples include:
-
-- price changes  
-- policy rollouts  
-- infrastructure or system changes  
-- company-wide product updates  
+Like all causal methods, this requires judgment in both modeling and interpretation.
 
 ---
 
@@ -131,6 +115,16 @@ Common examples include:
 - `ITS_PriceIncrease_Counterfactual.ipynb` – main notebook demonstrating the approach  
 - synthetic dataset generation and modeling steps  
 - visualizations comparing observed vs counterfactual outcomes  
+
+---
+
+## Key takeaway
+
+Without a counterfactual, it is easy to attribute changes to an intervention that had no real effect.
+
+Better measurement does not just improve analysis.
+
+**It prevents the wrong decisions.**
 
 ---
 
